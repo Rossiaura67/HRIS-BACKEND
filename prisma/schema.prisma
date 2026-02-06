@@ -167,44 +167,92 @@ model Transaction {
 
 model User {
   id                  Int             @id @default(autoincrement())
-  companyId           Int?
-  company             Company?        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  // ========================
+  // RELASI COMPANY
+  // ========================
+  companyId           Int?             // FK ke Company (nullable untuk superadmin)
+  company             Company?          @relation(
+                                        fields: [companyId],
+                                        references: [id],
+                                        onDelete: Cascade
+                                      )
+
+  // ========================
+  // IDENTITAS KARYAWAN
+  // ========================
   employeeId          String?
-  join_date           DateTime?       @default(now())
+  join_date           DateTime?         @default(now())
   name                String
-  email               String          @unique
+  email               String            @unique
   password            String
-  role                Role            @default(employee)
+  role                Role              @default(employee)
+  status              UserStatus        @default(Active)
+
+  // ========================
+  // DATA PERSONAL
+  // ========================
   gender              String?
   phone               String?
   grade               String?
   profile_image       String?
-  is_verified         Boolean         @default(false)
-  status              UserStatus      @default(Active)
-  contract_type       ContractType    @default(Kontrak)
-  annual_leave_quota  Int             @default(12)
-  leave_balance       Int             @default(12)
+
+  // ========================
+  // STATUS KARYAWAN
+  // ========================
+  is_verified         Boolean           @default(false)
+  contract_type       ContractType      @default(Kontrak)
+  annual_leave_quota  Int               @default(12)
+  leave_balance       Int               @default(12)
+
+  // ========================
+  // RELASI JABATAN & GAJI
+  // ========================
   positionId          Int?
-  position            PositionSalary? @relation(fields: [positionId], references: [id], onDelete: SetNull)
+  position            PositionSalary?   @relation(
+                                        fields: [positionId],
+                                        references: [id],
+                                        onDelete: SetNull
+                                      )
+
+  // ========================
+  // DATA BANK
+  // ========================
   bank_name           String?
   bank_account        String?
   bank_holder_name    String?
-  fcm_token           String?         @db.Text
+
+  // ========================
+  // AUTH & SESSION
+  // ========================
+  fcm_token           String?           @db.Text
   last_login          DateTime?
-  reset_token         String?         @unique
+  reset_token         String?           @unique
   reset_token_expired DateTime?
-  created_at          DateTime        @default(now())
-  updated_at          DateTime        @updatedAt
+
+  // ========================
+  // TIMESTAMP
+  // ========================
+  created_at          DateTime          @default(now())
+  updated_at          DateTime          @updatedAt
+
+  // ========================
+  // RELASI LAIN
+  // ========================
   notifications       Notification[]
   attendances         Attendance[]
   leaves              Leave[]
   auditLogs           AuditLog[]
   payrolls            Payroll[]
 
-  @@unique([companyId, employeeId])
+  // ========================
+  // CONSTRAINT
+  // ========================
+  @@unique([companyId, employeeId]) // employeeId unik per company
   @@index([companyId])
   @@map("users")
 }
+
 
 model Attendance {
   id                   Int              @id @default(autoincrement())
